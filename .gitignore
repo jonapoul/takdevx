@@ -1,0 +1,11 @@
+*.jks
+*.keystore
+*.sarif
+.cache/
+.claude/
+.gradle/
+.idea/
+.kotlin/
+.run/
+build/
+local.properties
