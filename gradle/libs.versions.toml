@@ -9,7 +9,7 @@ junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 
 [plugins]
-agp = { id = "com.android.application", version = "8.13.0" }
+agp = { id = "com.android.application", version = "8.13.2" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.7" }
 dependencyGuard = { id = "com.dropbox.dependency-guard", version = "0.5.0" }
 detekt = { id = "dev.detekt", version = "2.0.0-alpha.1" }
