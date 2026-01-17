@@ -15,7 +15,7 @@ jobs:
       git-tag: ${{ steps.git-tag.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-tags: true
           fetch-depth: 0 # get everything
@@ -61,7 +61,7 @@ jobs:
     needs: verify-version
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-tags: true
           fetch-depth: 0
@@ -75,7 +75,7 @@ jobs:
         run: ./gradlew publishToMavenCentral -x dokkaGeneratePublicationHtml
 
       - name: Create release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1
         with:
           generateReleaseNotes: true
           name: v${{ needs.verify-version.outputs.git-tag }}

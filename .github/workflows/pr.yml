@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -33,7 +33,7 @@ jobs:
           distribution: zulu
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@4d9f0ba0025fe599b4ebab900eb7f3a1d93ef4c2 # v5
         with:
           add-job-summary: on-failure
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
@@ -42,11 +42,11 @@ jobs:
         run: ./gradlew check
 
       - name: Report build results
-        uses: gmazzo/publish-report-annotations@v1
+        uses: gmazzo/publish-report-annotations@8bec9f79d4fb200c6d42faeeb2e04879646ba04f # v1
         if: ${{ !cancelled() }}
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 # v4
         if: success() || failure()
         with:
           sarif_file: build/reports/detekt/merge.sarif.json
