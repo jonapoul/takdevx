@@ -13,8 +13,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.api.tasks.TaskAction
+import takdevx.dependencyguard.internal.TAKDEVX_TASK_GROUP
 import java.io.File
-import kotlin.collections.iterator
 
 /**
  * Gradle task that validates resolved dependencies against TAK version restrictions.
@@ -83,6 +83,11 @@ public abstract class CheckDependencies : DefaultTask() {
    */
   @get:OutputFile
   public abstract val reportFile: RegularFileProperty
+
+  init {
+    group = TAKDEVX_TASK_GROUP
+    description = "Verifies that no project dependencies exceed those for the specified ATAK version"
+  }
 
   @TaskAction
   public fun execute() {
