@@ -40,8 +40,8 @@ jobs:
         id: version
         run: |
           VERSION_NAME="$(grep VERSION_NAME gradle.properties | cut -d "=" -f 2)"
-          echo "VERSION_NAME=VERSION_NAME"
-          echo "value=VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "VERSION_NAME=$VERSION_NAME"
+          echo "value=$VERSION_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publish snapshot
         if: |
