@@ -108,6 +108,7 @@ public abstract class CheckDependencies : DefaultTask() {
       .ifEmpty { error("No dependency guard files found in ${guardFileDir.absolutePath}") }
       .forEach { file ->
         val fileReportItems = mutableListOf<String>()
+        logger.info("Checking classpath file $file")
         for ((id, version) in file.readVersions()) {
           val maxVersion = restrictions[id] ?: continue
           if (version > maxVersion) {
@@ -116,6 +117,7 @@ public abstract class CheckDependencies : DefaultTask() {
           }
         }
         reportItems[file.nameWithoutExtension] = fileReportItems
+        logger.info("Found ${fileReportItems.size} problems in $file")
       }
 
     reportFile.printWriter().use { writer ->
