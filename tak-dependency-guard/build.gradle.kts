@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalAbiValidation::class)
 @file:Suppress("UnstableApiUsage")
 
 import dev.detekt.gradle.Detekt
@@ -8,7 +7,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import java.util.Properties
 
 plugins {
@@ -17,24 +15,28 @@ plugins {
   alias(libs.plugins.detekt)
   alias(libs.plugins.dokka)
   alias(libs.plugins.kotlin)
+  alias(libs.plugins.kotlinAbi)
   alias(libs.plugins.publish)
   alias(libs.plugins.publishReport)
   alias(libs.plugins.dependencyGuard)
 }
 
 dependencyGuard {
+  configuration("compileClasspath")
   configuration("runtimeClasspath")
 }
 
 val javaVersion = providers.gradleProperty("takdevx.javaVersion")
 
 kotlin {
-  abiValidation { enabled = true }
   compilerOptions {
     explicitApi()
     allWarningsAsErrors = true
     jvmTarget = javaVersion.map(JvmTarget::fromTarget)
-    freeCompilerArgs.addAll("-opt-in=kotlin.RequiresOptIn")
+    freeCompilerArgs.addAll(
+      "-opt-in=kotlin.RequiresOptIn",
+      "-Xmulti-dollar-interpolation",
+    )
   }
 }
 
