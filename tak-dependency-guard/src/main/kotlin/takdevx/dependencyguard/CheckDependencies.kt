@@ -26,8 +26,6 @@ import java.io.File
  * The task uses Gradle's internal [DefaultVersionComparator] to handle semantic versioning correctly, including
  * pre-release versions and metadata.
  *
- * Generated report file: `build/reports/tak-dependency-guard.txt`
- *
  * @see DownloadFile
  * @see TakDependencyGuardExtension
  */
@@ -79,7 +77,7 @@ public abstract class CheckDependencies : DefaultTask() {
    * ...
    * ```
    *
-   * Default location: `build/reports/takdevx.txt`
+   * Default location: `build/reports/takdevx/tak-dependency-guard.txt`
    */
   @get:OutputFile
   public abstract val reportFile: RegularFileProperty
@@ -120,19 +118,23 @@ public abstract class CheckDependencies : DefaultTask() {
         logger.info("Found ${fileReportItems.size} problems in $file")
       }
 
-    reportFile.printWriter().use { writer ->
-      reportItems.forEach { (filename, items) ->
-        writer.appendLine(filename)
-        items.forEach(writer::appendLine)
-        writer.appendLine()
+    val reportString = buildString {
+      reportItems.forEach { (classpathName, items) ->
+        appendLine(classpathName)
+        items.forEach { item -> appendLine("  $item") }
+        appendLine()
       }
+    }
+
+    reportFile.bufferedWriter().use { writer ->
+      writer.append(reportString)
     }
 
     if (hasAnyFailures) {
       error(
         buildString {
           appendLine("Failed TAK dependency validations - check $reportFile")
-          reportItems.forEach { appendLine("  $it") }
+          appendLine(reportString)
         },
       )
     }
