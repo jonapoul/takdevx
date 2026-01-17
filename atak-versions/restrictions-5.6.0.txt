@@ -43,7 +43,7 @@ com.squareup.okio:okio-jvm:3.2.0
 com.squareup.okio:okio:3.2.0
 gov.tak.kernel:takkernel-aar:8.45.8
 gov.tak.thirdparty:apache-commons-lang-slim:1.0.0
-#gov.tak.thirdparty:libLAS:1.8.2i
+gov.tak.thirdparty:libLAS:1.8.2i
 gov.tak.thirdparty:takthirdparty:5.0.2
 io.github.missioncommand:mil-sym-android-renderer:0.2.1
 io.github.missioncommand:mil-sym-android:2.5.0

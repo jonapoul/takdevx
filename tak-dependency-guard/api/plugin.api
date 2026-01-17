@@ -1,0 +1,30 @@
+public abstract class tak/gradle/CheckDependencies : org/gradle/api/DefaultTask {
+	public fun <init> ()V
+	public final fun execute ()V
+	public abstract fun getGuardFileDir ()Lorg/gradle/api/file/DirectoryProperty;
+	public abstract fun getReportFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getRestrictionsFile ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public abstract class tak/gradle/DownloadFile : org/gradle/api/DefaultTask {
+	public fun <init> ()V
+	public final fun execute ()V
+	public abstract fun getDestinationFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getUrl ()Lorg/gradle/api/provider/Property;
+}
+
+public abstract class tak/gradle/TakDependencyGuardExtension {
+	public fun <init> (Lorg/gradle/api/Project;)V
+	public final fun configuration (Ljava/lang/String;)V
+	public final fun configuration (Ljava/lang/String;Lorg/gradle/api/Action;)V
+	public abstract fun getAtakVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getRestrictionsFile ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getRestrictionsUrl ()Lorg/gradle/api/provider/Property;
+}
+
+public final class tak/gradle/TakDependencyGuardPlugin : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+

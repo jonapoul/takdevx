@@ -1,4 +1,4 @@
-# TAK Dependency Guard Gradle Plugin
+# takdevx
 
 ## License
 
