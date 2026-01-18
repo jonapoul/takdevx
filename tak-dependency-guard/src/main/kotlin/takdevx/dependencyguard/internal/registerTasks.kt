@@ -52,5 +52,6 @@ internal fun Project.registerCheckTakDependenciesTask(
     t.restrictionsFile.set(restrictionsFile)
     t.guardFileDir.set(layout.projectDirectory.dir("dependencies"))
     t.reportFile.set(layout.buildDirectory.file("reports/takdevx/tak-dependency-guard.txt"))
+    t.allowedDependencies.set(extension.allowedDependencies)
   }
 }

@@ -32,6 +32,15 @@ fun Assert<BuildResult>.outputContains(expected: String): Assert<BuildResult> = 
   }
 }
 
+fun Assert<BuildResult>.outputDoesNotContain(expected: String): Assert<BuildResult> = transform { result ->
+  val output = result.output
+  if (!output.contains(expected)) {
+    result
+  } else {
+    expected("output to not contain '$expected', actually got:\n$output")
+  }
+}
+
 fun Assert<BuildResult>.outputContains(expected: Regex): Assert<BuildResult> = transform { result ->
   val output = result.output
   if (output.contains(expected)) {

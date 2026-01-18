@@ -71,6 +71,31 @@ Only ONE of the above three configuration methods should be set. The plugin vali
 
 The `ATAK_VERSION` Gradle property acts as an automatic fallback for the `atakVersion` extension property, in case none of these three are set.
 
+#### Allowed Dependencies
+
+You can bypass TAK version restrictions for specific dependencies using the `allow()` helper methods:
+
+```kotlin
+takDependencyGuard {
+  configuration("runtimeClasspath")
+  atakVersion = "5.6.0"
+
+  // From version catalog
+  allow(libs.squareup.okio)
+
+  // Using separate parameters
+  allow("com.squareup.okhttp3", "okhttp", "5.3.0")
+
+  // Using coordinate string
+  allow("androidx.core:core:1.18.0")
+}
+```
+
+**Important**:
+- Allowlist entries must match the EXACT version (format: "group:artifact:version")
+- Only dependencies in the allowlist bypass validation
+- All other dependencies are still validated against TAK restrictions
+
 ### Task Chain
 1. **downloadTakDependencies** (`DownloadFile` task)
    - Downloads restrictions file from GitHub or custom URL
