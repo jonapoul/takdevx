@@ -7,6 +7,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import takdevx.dependencyguard.internal.TAKDEVX_TASK_GROUP
 import java.net.URI
 
 /**
@@ -42,6 +43,11 @@ public abstract class DownloadFile : DefaultTask() {
    */
   @get:OutputFile
   public abstract val destinationFile: RegularFileProperty
+
+  init {
+    group = TAKDEVX_TASK_GROUP
+    description = "Downloads the dependency restriction file needed for the checkTakDependencies task"
+  }
 
   @TaskAction
   public fun execute() {

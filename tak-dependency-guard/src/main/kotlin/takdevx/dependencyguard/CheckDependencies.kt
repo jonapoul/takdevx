@@ -13,8 +13,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.api.tasks.TaskAction
+import takdevx.dependencyguard.internal.TAKDEVX_TASK_GROUP
 import java.io.File
-import kotlin.collections.iterator
 
 /**
  * Gradle task that validates resolved dependencies against TAK version restrictions.
@@ -25,8 +25,6 @@ import kotlin.collections.iterator
  *
  * The task uses Gradle's internal [DefaultVersionComparator] to handle semantic versioning correctly, including
  * pre-release versions and metadata.
- *
- * Generated report file: `build/reports/tak-dependency-guard.txt`
  *
  * @see DownloadFile
  * @see TakDependencyGuardExtension
@@ -79,10 +77,15 @@ public abstract class CheckDependencies : DefaultTask() {
    * ...
    * ```
    *
-   * Default location: `build/reports/takdevx.txt`
+   * Default location: `build/reports/takdevx/tak-dependency-guard.txt`
    */
   @get:OutputFile
   public abstract val reportFile: RegularFileProperty
+
+  init {
+    group = TAKDEVX_TASK_GROUP
+    description = "Verifies that no project dependencies exceed those for the specified ATAK version"
+  }
 
   @TaskAction
   public fun execute() {
@@ -103,6 +106,7 @@ public abstract class CheckDependencies : DefaultTask() {
       .ifEmpty { error("No dependency guard files found in ${guardFileDir.absolutePath}") }
       .forEach { file ->
         val fileReportItems = mutableListOf<String>()
+        logger.info("Checking classpath file $file")
         for ((id, version) in file.readVersions()) {
           val maxVersion = restrictions[id] ?: continue
           if (version > maxVersion) {
@@ -111,21 +115,28 @@ public abstract class CheckDependencies : DefaultTask() {
           }
         }
         reportItems[file.nameWithoutExtension] = fileReportItems
+        logger.info("Found ${fileReportItems.size} problems in $file")
       }
 
-    reportFile.printWriter().use { writer ->
-      reportItems.forEach { (filename, items) ->
-        writer.appendLine(filename)
-        items.forEach(writer::appendLine)
-        writer.appendLine()
+    val reportString = buildString {
+      reportItems.toSortedMap().forEach { (classpathName, items) ->
+        if (items.isNotEmpty()) {
+          appendLine(classpathName)
+          items.forEach { item -> appendLine("  $item") }
+          appendLine()
+        }
       }
+    }
+
+    reportFile.bufferedWriter().use { writer ->
+      writer.append(reportString)
     }
 
     if (hasAnyFailures) {
       error(
         buildString {
           appendLine("Failed TAK dependency validations - check $reportFile")
-          reportItems.forEach { appendLine("  $it") }
+          appendLine(reportString)
         },
       )
     }

@@ -3,6 +3,7 @@ package takdevx.dependencyguard
 import com.dropbox.gradle.plugins.dependencyguard.DependencyGuardPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.language.base.plugins.LifecycleBasePlugin.CHECK_TASK_NAME
 import takdevx.dependencyguard.internal.registerCheckTakDependenciesTask
 import takdevx.dependencyguard.internal.registerDownloadFileTask
 import takdevx.dependencyguard.internal.warnIfTooManyOptionsSet
@@ -48,7 +49,11 @@ public class TakDependencyGuardPlugin : Plugin<Project> {
     val downloadFile = registerDownloadFileTask(extension)
     val checkDependencies = registerCheckTakDependenciesTask(extension, downloadFile)
 
-    tasks.named("check").configure { t -> t.dependsOn(checkDependencies) }
+    pluginManager.withPlugin("base") {
+      tasks.named(CHECK_TASK_NAME).configure { t ->
+        t.dependsOn(checkDependencies)
+      }
+    }
 
     afterEvaluate {
       warnIfTooManyOptionsSet(extension)

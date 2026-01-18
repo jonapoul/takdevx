@@ -87,7 +87,7 @@ The `ATAK_VERSION` Gradle property acts as an automatic fallback for the `atakVe
    - Reads dependency guard baseline files
    - Compares versions against restrictions file
    - Uses Gradle's internal `VersionComparator` for semantic version comparison
-   - Generates failure report in `build/reports/tak-dependency-guard.txt`
+   - Generates failure report in `build/reports/takdevx/tak-dependency-guard.txt`
    - Fails build if any dependencies exceed ATAK version limits
 
 ### Internal Package (`takdevx.**.internal`)
@@ -116,7 +116,7 @@ Uses Gradle's `DefaultVersionComparator` and `VersionParser` to handle semantic 
 
 ### Testing
 - Uses JUnit 6
-- Test utilities in `plugin/src/test/kotlin/takdevx/dependencyguard/test/`:
+- Test utilities in `tak-dependency-guard/src/test/kotlin/takdevx/dependencyguard/test/`:
   - **ScenarioTest.kt**: Test scenario DSL for creating temporary Gradle projects
   - **GradleRunners.kt**: Gradle TestKit runner helpers
   - **Assertions.kt**: Custom assertions for Gradle build results

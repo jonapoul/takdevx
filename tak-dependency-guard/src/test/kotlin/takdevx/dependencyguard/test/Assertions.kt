@@ -8,6 +8,7 @@ import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 fun Assert<BuildResult>.taskSucceeded(name: String): Assert<BuildResult> = taskHadResult(name, expected = SUCCESS)
+
 fun Assert<BuildResult>.taskFailed(name: String): Assert<BuildResult> = taskHadResult(name, expected = FAILED)
 
 fun Assert<BuildResult>.taskHadResult(
@@ -45,5 +46,13 @@ fun Assert<String>.contains(expected: String): Assert<String> = transform { actu
     actual
   } else {
     expected("string to contain '$expected' - actual = $actual")
+  }
+}
+
+fun Assert<String>.doesNotContain(expected: String): Assert<String> = transform { actual ->
+  if (!actual.contains(expected)) {
+    actual
+  } else {
+    expected("string to not contain '$expected' - actual = $actual")
   }
 }

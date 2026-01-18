@@ -11,12 +11,23 @@ private const val BASE_URL = "https://raw.githubusercontent.com/jonapoul/takdevx
 internal fun Project.registerDownloadFileTask(
   extension: TakDependencyGuardExtension,
 ): TaskProvider<DownloadFile> {
+  // Register the download task on the root project to ensure it's shared across all modules
+  // This prevents implicit dependency issues when multiple modules use the plugin
+  val rootProject = rootProject
+  val taskName = "downloadTakDependencies"
+
+  if (rootProject.tasks.findByName(taskName) != null) {
+    // Task already exists on root project, return a provider for it
+    return rootProject.tasks.named(taskName, DownloadFile::class.java)
+  }
+
+  // Register the task on root project for the first time
+  // Use root project's property providers to ensure consistent configuration across all modules
   val filename = extension
     .atakVersion
-    .orElse(atakVersionProperty)
+    .orElse(rootProject.atakVersionProperty)
     .map { "restrictions-$it.txt" }
 
-  // Use restrictionsUrl if set, otherwise construct URL from atakVersion
   val downloadUrl = extension
     .restrictionsUrl
     .orElse(filename.map { "$BASE_URL/$it" })
@@ -26,12 +37,9 @@ internal fun Project.registerDownloadFileTask(
     .resolve("takdevx")
     .resolve("tak-dependency-guard")
 
-  val restrictionsFile = extension.restrictionsFile
-
-  return tasks.register("downloadTakDependencies", DownloadFile::class.java) { t ->
+  return rootProject.tasks.register(taskName, DownloadFile::class.java) { t ->
     t.url.set(downloadUrl)
     t.destinationFile.set(cacheDir.resolve("restrictions.txt"))
-    t.onlyIf { !restrictionsFile.isPresent }
   }
 }
 
@@ -43,6 +51,6 @@ internal fun Project.registerCheckTakDependenciesTask(
   return tasks.register("checkTakDependencies", CheckDependencies::class.java) { t ->
     t.restrictionsFile.set(restrictionsFile)
     t.guardFileDir.set(layout.projectDirectory.dir("dependencies"))
-    t.reportFile.set(layout.buildDirectory.file("reports/tak-dependency-guard.txt"))
+    t.reportFile.set(layout.buildDirectory.file("reports/takdevx/tak-dependency-guard.txt"))
   }
 }

@@ -53,7 +53,7 @@ class SetAtakVersionAndDownloadRestrictions : ScenarioTest() {
     val result = runTask(":app:checkTakDependencies").buildAndFail()
 
     assertThat(result)
-      .taskSucceeded(":app:downloadTakDependencies")
+      .taskSucceeded(":downloadTakDependencies")
       .taskFailed(":app:checkTakDependencies")
       .outputContains("com.squareup.okio:okio:3.16.2 > 3.2.0")
       .outputContains("com.squareup.okhttp3:okhttp:5.3.0 > 4.11.0")
@@ -68,7 +68,7 @@ class SetAtakVersionAndDownloadRestrictions : ScenarioTest() {
     generateBaseline()
     val result = runTask(":app:checkTakDependencies").build()
     assertThat(result)
-      .taskSucceeded(":app:downloadTakDependencies")
+      .taskSucceeded(":downloadTakDependencies")
       .taskSucceeded(":app:checkTakDependencies")
   }
 }
