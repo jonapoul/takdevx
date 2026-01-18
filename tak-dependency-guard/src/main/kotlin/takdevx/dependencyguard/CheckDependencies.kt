@@ -119,10 +119,12 @@ public abstract class CheckDependencies : DefaultTask() {
       }
 
     val reportString = buildString {
-      reportItems.forEach { (classpathName, items) ->
-        appendLine(classpathName)
-        items.forEach { item -> appendLine("  $item") }
-        appendLine()
+      reportItems.toSortedMap().forEach { (classpathName, items) ->
+        if (items.isNotEmpty()) {
+          appendLine(classpathName)
+          items.forEach { item -> appendLine("  $item") }
+          appendLine()
+        }
       }
     }
 
