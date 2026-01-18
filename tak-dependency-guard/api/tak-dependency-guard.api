@@ -1,6 +1,7 @@
 public abstract class takdevx/dependencyguard/CheckDependencies : org/gradle/api/DefaultTask {
 	public fun <init> ()V
 	public final fun execute ()V
+	public abstract fun getAllowedDependencies ()Lorg/gradle/api/provider/SetProperty;
 	public abstract fun getGuardFileDir ()Lorg/gradle/api/file/DirectoryProperty;
 	public abstract fun getReportFile ()Lorg/gradle/api/file/RegularFileProperty;
 	public abstract fun getRestrictionsFile ()Lorg/gradle/api/file/RegularFileProperty;
@@ -15,6 +16,9 @@ public abstract class takdevx/dependencyguard/DownloadFile : org/gradle/api/Defa
 
 public abstract class takdevx/dependencyguard/TakDependencyGuardExtension {
 	public fun <init> (Lorg/gradle/api/Project;)V
+	public final fun allow (Ljava/lang/String;)V
+	public final fun allow (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun allow (Lorg/gradle/api/provider/Provider;)V
 	public final fun configuration (Ljava/lang/String;)V
 	public final fun configuration (Ljava/lang/String;Lorg/gradle/api/Action;)V
 	public abstract fun getAtakVersion ()Lorg/gradle/api/provider/Property;

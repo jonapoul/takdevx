@@ -4,8 +4,11 @@ import com.dropbox.gradle.plugins.dependencyguard.DependencyGuardConfiguration
 import com.dropbox.gradle.plugins.dependencyguard.DependencyGuardPluginExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import javax.inject.Inject
 
 /**
@@ -39,6 +42,8 @@ import javax.inject.Inject
  * during IDE sync, and will fail when running the `takDependencyGuard` task.
  */
 public abstract class TakDependencyGuardExtension @Inject constructor(project: Project) {
+  internal abstract val allowedDependencies: SetProperty<String>
+
   private val dependencyGuardExtension by lazy {
     project.extensions.getByType(DependencyGuardPluginExtension::class.java)
   }
@@ -119,4 +124,61 @@ public abstract class TakDependencyGuardExtension @Inject constructor(project: P
    */
   public fun configuration(name: String, action: Action<DependencyGuardConfiguration>): Unit =
     dependencyGuardExtension.configuration(name, action)
+
+  /**
+   * Adds a dependency from a version catalog to the allowlist.
+   *
+   * Example:
+   * ```kotlin
+   * takDependencyGuard {
+   *   allow(libs.squareup.okio)
+   * }
+   * ```
+   *
+   * @param dependency Version catalog dependency reference
+   */
+  public fun allow(dependency: Provider<MinimalExternalModuleDependency>) {
+    allowedDependencies.add(
+      dependency.map { dep ->
+        "${dep.module.group}:${dep.module.name}:${dep.versionConstraint}"
+      },
+    )
+  }
+
+  /**
+   * Adds a dependency to the allowlist to bypass TAK version restrictions.
+   *
+   * Example:
+   * ```kotlin
+   * takDependencyGuard {
+   *   allow("androidx.core", "core", "1.17.0")
+   * }
+   * ```
+   *
+   * @param group Dependency group ID (e.g., "androidx.core")
+   * @param artifact Dependency artifact ID (e.g., "core")
+   * @param version Exact version string (e.g., "1.17.0")
+   */
+  public fun allow(group: String, artifact: String, version: String) {
+    allowedDependencies.add("$group:$artifact:$version")
+  }
+
+  /**
+   * Adds a dependency to the allowlist using full coordinate string.
+   *
+   * Example:
+   * ```kotlin
+   * takDependencyGuard {
+   *   allow("androidx.lifecycle:lifecycle-runtime:2.9.5")
+   * }
+   * ```
+   *
+   * @param coordinate Full dependency coordinate in format "group:artifact:version"
+   */
+  public fun allow(coordinate: String) {
+    require(coordinate.count { it == ':' } == 2) {
+      "Dependency coordinate must be in format 'group:artifact:version', got: $coordinate"
+    }
+    allowedDependencies.add(coordinate)
+  }
 }

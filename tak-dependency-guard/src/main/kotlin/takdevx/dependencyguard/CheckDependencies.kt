@@ -6,9 +6,11 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.VersionInfo
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.VersionParser
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
@@ -76,11 +78,18 @@ public abstract class CheckDependencies : DefaultTask() {
    * runtimeClasspath
    * ...
    * ```
-   *
-   * Default location: `build/reports/takdevx/tak-dependency-guard.txt`
    */
   @get:OutputFile
   public abstract val reportFile: RegularFileProperty
+
+  /**
+   * Set of dependencies allowed to bypass TAK version restrictions.
+   *
+   * Dependencies in this set will not be validated against the restrictions file.
+   * Format: "group:artifact:version" (exact match)
+   */
+  @get:Internal
+  public abstract val allowedDependencies: SetProperty<String>
 
   init {
     group = TAKDEVX_TASK_GROUP
@@ -98,47 +107,70 @@ public abstract class CheckDependencies : DefaultTask() {
     if (!restrictionsFile.exists()) error("$restrictionsFile doesn't exist")
 
     val restrictions = restrictionsFile.readVersions()
-    val reportItems = mutableMapOf<String, List<String>>()
-    var hasAnyFailures = false
+    val allowed = allowedDependencies.getOrElse(emptySet())
 
-    guardFileDir
+    val violationsMap = guardFileDir
       .listFiles()
       .ifEmpty { error("No dependency guard files found in ${guardFileDir.absolutePath}") }
-      .forEach { file ->
-        val fileReportItems = mutableListOf<String>()
-        logger.info("Checking classpath file $file")
-        for ((id, version) in file.readVersions()) {
-          val maxVersion = restrictions[id] ?: continue
-          if (version > maxVersion) {
-            fileReportItems += "$id:$version > $maxVersion"
-            hasAnyFailures = true
-          }
-        }
-        reportItems[file.nameWithoutExtension] = fileReportItems
-        logger.info("Found ${fileReportItems.size} problems in $file")
+      .associate { file ->
+        val violations = checkDependencyFile(file, restrictions, allowed)
+        logger.info("Found ${violations.size} problems in $file")
+        file.nameWithoutExtension to violations
       }
 
-    val reportString = buildString {
-      reportItems.toSortedMap().forEach { (classpathName, items) ->
-        if (items.isNotEmpty()) {
-          appendLine(classpathName)
-          items.forEach { item -> appendLine("  $item") }
-          appendLine()
-        }
-      }
-    }
-
+    val reportString = buildReportString(violationsMap)
     reportFile.bufferedWriter().use { writer ->
       writer.append(reportString)
     }
 
-    if (hasAnyFailures) {
+    if (violationsMap.any { (_, violations) -> violations.isNotEmpty() }) {
       error(
         buildString {
           appendLine("Failed TAK dependency validations - check $reportFile")
           appendLine(reportString)
         },
       )
+    }
+  }
+
+  private fun checkDependencyFile(
+    file: File,
+    restrictions: Map<String, Version>,
+    allowed: Set<String>,
+  ): List<String> {
+    logger.info("Checking classpath file $file")
+    return file
+      .readVersions()
+      .mapNotNull { (id, version) ->
+        val fullCoordinate = "$id:$version"
+        when {
+          fullCoordinate in allowed -> {
+            logger.info("Skipping validation for allowed dependency: $fullCoordinate")
+            null
+          }
+
+          id !in restrictions -> {
+            null
+          }
+
+          version > restrictions.getValue(id) -> {
+            "$id:$version > ${restrictions.getValue(id)}"
+          }
+
+          else -> {
+            null
+          }
+        }
+      }
+  }
+
+  private fun buildReportString(reportItems: Map<String, List<String>>): String = buildString {
+    reportItems.toSortedMap().forEach { (classpathName, items) ->
+      if (items.isNotEmpty()) {
+        appendLine(classpathName)
+        items.forEach { item -> appendLine("  $item") }
+        appendLine()
+      }
     }
   }
 
