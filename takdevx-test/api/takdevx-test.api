@@ -1,0 +1,40 @@
+public final class takdevx/test/AssertionsKt {
+	public static final fun contains (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun doesNotContain (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun outputContains (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun outputContains (Lassertk/Assert;Lkotlin/text/Regex;)Lassertk/Assert;
+	public static final fun outputDoesNotContain (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun taskFailed (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun taskHadResult (Lassertk/Assert;Ljava/lang/String;Lorg/gradle/testkit/runner/TaskOutcome;)Lassertk/Assert;
+	public static final fun taskSucceeded (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+}
+
+public final class takdevx/test/GradleRunnersKt {
+	public static final fun buildRunner (Ltakdevx/test/ScenarioTest;Ljava/io/File;Z)Lorg/gradle/testkit/runner/GradleRunner;
+	public static synthetic fun buildRunner$default (Ltakdevx/test/ScenarioTest;Ljava/io/File;ZILjava/lang/Object;)Lorg/gradle/testkit/runner/GradleRunner;
+	public static final fun runTask (Lorg/gradle/testkit/runner/GradleRunner;Ljava/lang/String;Ljava/util/List;)Lorg/gradle/testkit/runner/GradleRunner;
+	public static final fun runTask (Ltakdevx/test/ScenarioTest;Ljava/io/File;Ljava/lang/String;ZLjava/util/List;)Lorg/gradle/testkit/runner/GradleRunner;
+	public static synthetic fun runTask$default (Lorg/gradle/testkit/runner/GradleRunner;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lorg/gradle/testkit/runner/GradleRunner;
+	public static synthetic fun runTask$default (Ltakdevx/test/ScenarioTest;Ljava/io/File;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lorg/gradle/testkit/runner/GradleRunner;
+}
+
+public abstract class takdevx/test/ScenarioTest {
+	public field projectRoot Ljava/io/File;
+	public fun <init> ()V
+	public final fun afterScenarioTest ()V
+	protected final fun deleteCachedRestrictions ()V
+	protected final fun generateBaseline (Ljava/io/File;)Lorg/gradle/testkit/runner/BuildResult;
+	public abstract fun getAndroidHome ()Ljava/io/File;
+	protected fun getGradlePropertiesFile ()Ljava/lang/String;
+	public abstract fun getGradleVersion ()Ljava/lang/String;
+	protected fun getOtherFiles ()Ljava/util/Map;
+	public abstract fun getPluginId ()Ljava/lang/String;
+	public final fun getProjectRoot ()Ljava/io/File;
+	protected fun getRootBuildFile ()Ljava/lang/String;
+	protected fun getSubprojectBuildFiles ()Ljava/util/Map;
+	protected fun isGroovy ()Z
+	protected final fun resolveAndMkdirs (Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
+	protected final fun runScenario ([Lkotlin/Pair;Lkotlin/jvm/functions/Function1;)V
+	public final fun setProjectRoot (Ljava/io/File;)V
+}
+

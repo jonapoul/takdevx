@@ -3,6 +3,7 @@
 rootProject.name = "takdevx"
 
 pluginManagement {
+  includeBuild("build-logic")
   repositories {
     google {
       mavenContent {
@@ -12,6 +13,7 @@ pluginManagement {
     }
     mavenCentral()
     gradlePluginPortal()
+    mavenLocal()
   }
 }
 
@@ -20,7 +22,24 @@ dependencyResolutionManagement {
   repositories {
     google()
     mavenCentral()
+    mavenLocal()
   }
 }
 
-include(":tak-dependency-guard")
+plugins {
+  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+  id("com.gradle.develocity") version "4.3.1"
+}
+
+develocity {
+  buildScan.publishing.onlyIf { false }
+}
+
+include(
+  ":takdevx-dependency-guard",
+  ":takdevx-detekt",
+  ":takdevx-gradle-plugin",
+  ":takdevx-test",
+)
+
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")

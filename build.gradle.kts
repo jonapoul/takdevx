@@ -7,11 +7,23 @@ plugins {
   alias(libs.plugins.dokka) apply false
   alias(libs.plugins.kotlin) apply false
   alias(libs.plugins.kotlinAbi) apply false
+  alias(libs.plugins.licensee) apply false
   alias(libs.plugins.publish) apply false
   alias(libs.plugins.publishReport) apply false
 
+  alias(libs.plugins.dependencyAnalysis)
   alias(libs.plugins.dependencyGuard)
   base
+}
+
+dependencyAnalysis {
+  issues {
+    all {
+      onAny {
+        severity("fail")
+      }
+    }
+  }
 }
 
 dependencyGuard {
@@ -27,7 +39,8 @@ tasks.check.configure {
 }
 
 allprojects {
+  val detektTasks = tasks.withType<Detekt>()
   detektReportMergeSarif.configure {
-    input.from(tasks.withType<Detekt>().map { it.reports.sarif.outputLocation })
+    input.from(detektTasks.map { it.reports.sarif.outputLocation })
   }
 }
