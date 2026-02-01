@@ -2,6 +2,7 @@ package takdevx.gradle
 
 import blueprint.core.get
 import blueprint.core.libs
+import blueprint.test.BlueprintTestPlugin
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import com.github.gmazzo.buildconfig.BuildConfigPlugin
 import org.gradle.api.Plugin
@@ -15,12 +16,8 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.buildConfigField
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.kotlin
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.registering
 import org.gradle.kotlin.dsl.withType
-import org.gradle.plugin.devel.tasks.PluginUnderTestMetadata
 import org.gradle.util.GradleVersion
 import java.io.File
 
@@ -28,6 +25,7 @@ class ConventionTest : Plugin<Project> {
   override fun apply(target: Project) = with(target) {
     with(pluginManager) {
       apply(BuildConfigPlugin::class)
+      apply(BlueprintTestPlugin::class)
     }
 
     tasks.withType(Test::class).configureEach {
@@ -54,18 +52,13 @@ class ConventionTest : Plugin<Project> {
           buildConfigField<File?>("ANDROID_HOME", androidHome())
         }
       }
-
-      val testPluginClasspath by configurations.registering { isCanBeResolved = true }
-
-      tasks.withType(PluginUnderTestMetadata::class).configureEach {
-        pluginClasspath.from(testPluginClasspath)
-      }
     }
 
     dependencies {
       "testImplementation"(kotlin("stdlib"))
       "testImplementation"(kotlin("test"))
       "testImplementation"(libs["assertk"])
+      "testImplementation"(libs["blueprint.assertk"])
       "testImplementation"(libs["junit.api"])
       "testImplementation"(libs["junit.params"])
       "testRuntimeOnly"(libs["junit.launcher"])

@@ -18,7 +18,6 @@ dependencies {
   api(pluginDependency(libs.plugins.dependencyGuard))
   compileOnly(pluginDependency(libs.plugins.kotlin))
 
-  testImplementation(project(":takdevx-test"))
   testPluginClasspath(pluginDependency(libs.plugins.agp.app))
   testPluginClasspath(pluginDependency(libs.plugins.kotlin))
   testPluginClasspath(pluginDependency(libs.plugins.dependencyGuard))

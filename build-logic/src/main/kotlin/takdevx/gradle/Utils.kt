@@ -1,7 +1,6 @@
 package takdevx.gradle
 
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.provider.Provider
 import org.gradle.plugin.use.PluginDependency
 import java.io.File
@@ -34,5 +33,3 @@ internal fun Project.androidHome(): File? {
 
 internal val Project.pluginId: String
   get() = properties["takdevx.pluginId"]?.toString() ?: error("Missing pluginId")
-
-internal fun VersionCatalog.plugin(name: String): Provider<PluginDependency> = findPlugin(name).get()

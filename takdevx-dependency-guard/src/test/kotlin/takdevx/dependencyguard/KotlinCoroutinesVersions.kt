@@ -1,46 +1,50 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.failsBuild
+import blueprint.test.outputContains
+import blueprint.test.taskFailed
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputContains
-import takdevx.test.runTask
-import takdevx.test.taskFailed
 import kotlin.test.Test
 
 class KotlinCoroutinesVersions : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
-      }
-    """.trimIndent(),
-  )
+    "restrictions.txt"(
+      """
+        org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1
+        org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1
+        org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1
+      """.trimIndent(),
+    )
 
-  override val otherFiles = mapOf(
-    "app/dependencies/runtimeClasspath.txt" to """
-      org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0
-      org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0
-      org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1
-    """.trimIndent(),
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
 
-    "restrictions.txt" to """
-      org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1
-      org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1
-      org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1
-    """.trimIndent(),
-  )
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+        }
+
+        dependencies {
+          implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+          implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Detect kotlinx-coroutines version violations`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").buildAndFail()
-
-    assertThat(result)
+    dependencyGuardBaseline()
+    assertThatTask(":app:checkTakDependencies")
+      .failsBuild()
       .taskFailed(":app:checkTakDependencies")
       .outputContains("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0 > 1.8.1")
   }

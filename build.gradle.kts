@@ -2,6 +2,7 @@ import dev.detekt.gradle.Detekt
 import dev.detekt.gradle.report.ReportMergeTask
 
 plugins {
+  alias(libs.plugins.blueprintTest) apply false
   alias(libs.plugins.buildConfig) apply false
   alias(libs.plugins.detekt) apply false
   alias(libs.plugins.dokka) apply false

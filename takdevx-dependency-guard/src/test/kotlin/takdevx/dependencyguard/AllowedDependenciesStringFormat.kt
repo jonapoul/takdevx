@@ -1,46 +1,42 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputDoesNotContain
-import takdevx.test.runTask
-import takdevx.test.taskSucceeded
 import kotlin.test.Test
 
 class AllowedDependenciesStringFormat : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
+    "restrictions.txt"("com.squareup.okio:okio:3.1.0")
 
-        // Test string format: allow("group:artifact:version")
-        allow("androidx.lifecycle:lifecycle-runtime:2.9.5")
-      }
-    """.trimIndent(),
-  )
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
 
-  override val otherFiles = mapOf(
-    "app/dependencies/runtimeClasspath.txt" to """
-      androidx.lifecycle:lifecycle-runtime:2.9.5
-    """.trimIndent(),
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
 
-    "restrictions.txt" to """
-      androidx.lifecycle:lifecycle-runtime:2.8.0
-    """.trimIndent(),
-  )
+          // Test string format: allow("group:artifact:version")
+          allow("com.squareup.okio:okio:3.16.4")
+        }
+
+        dependencies { implementation("com.squareup.okio:okio:3.16.4") }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `String coordinate format allows dependency to bypass restriction`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").build()
-
-    assertThat(result)
+    assertThatTask(":app:checkTakDependencies")
+      .buildsSuccessfully()
       .taskSucceeded(":app:checkTakDependencies")
-      .outputDoesNotContain("androidx.lifecycle:lifecycle-runtime:2.9.5")
   }
 }

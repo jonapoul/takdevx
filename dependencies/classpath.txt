@@ -45,6 +45,8 @@ dev.detekt:detekt-gradle-plugin:2.0.0-alpha.1
 dev.detekt:dev.detekt.gradle.plugin:2.0.0-alpha.1
 dev.drewhamilton.poko:poko-annotations-jvm:0.18.7
 dev.drewhamilton.poko:poko-annotations:0.18.7
+dev.jonpoulton.blueprint.test:dev.jonpoulton.blueprint.test.gradle.plugin:2.0.0-SNAPSHOT
+dev.jonpoulton.blueprint:test-plugin:2.0.0-SNAPSHOT
 dev.zacsweers.moshix:moshi-sealed-reflect:0.30.0
 dev.zacsweers.moshix:moshi-sealed-runtime:0.30.0
 io.github.detekt.sarif4k:sarif4k-jvm:0.6.0

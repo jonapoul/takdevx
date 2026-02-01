@@ -1,73 +1,76 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.failsBuild
+import blueprint.test.outputContains
+import blueprint.test.taskFailed
+import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputContains
-import takdevx.test.runTask
-import takdevx.test.taskFailed
-import takdevx.test.taskSucceeded
 import kotlin.test.Test
 
 class TwoPartVersionNumbers : DependencyGuardScenarioTest() {
-  override val rootBuildFile: String = """
-    plugins {
-      kotlin("android") apply false
-      id("com.android.application") apply false
-      id("$PLUGIN_ID") apply false
-    }
-  """.trimIndent()
-
-  override val subprojectBuildFiles = mapOf(
-    "app" to $$"""
-      plugins {
-        kotlin("android")
-        id("com.android.application")
-        id("$$PLUGIN_ID")
-      }
-
-      android {
-        namespace = "com.example.app"
-        compileSdk = 36
-
-        defaultConfig {
-          minSdk = 21
-          targetSdk = 36
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    "build.gradle.kts"(
+      """
+        plugins {
+          kotlin("android") apply false
+          id("com.android.application") apply false
+          id("$PLUGIN_ID") apply false
         }
-      }
+      """.trimIndent(),
+    )
 
-      takDependencyGuard {
-        configuration("releaseRuntimeClasspath")
-        restrictionsFile = file("restrictions.txt")
-      }
+    "restrictions.txt"("com.caverock:androidsvg-aar:1.3")
 
-      val androidSvgVersion by properties
+    appBuildGradleKts(
+      $$"""
+        plugins {
+          kotlin("android")
+          id("com.android.application")
+          id("$$PLUGIN_ID")
+        }
 
-      dependencies {
-        implementation("com.caverock:androidsvg-aar:$androidSvgVersion")
-      }
-    """.trimIndent(),
-  )
+        android {
+          namespace = "com.example.app"
+          compileSdk = 36
 
-  override val otherFiles = mapOf(
-    "app/restrictions.txt" to """
-      com.caverock:androidsvg-aar:1.3
-    """.trimIndent(),
-  )
+          defaultConfig {
+            minSdk = 21
+            targetSdk = 36
+          }
+        }
+
+        takDependencyGuard {
+          configuration("releaseRuntimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+        }
+
+        val androidSvgVersion by properties
+        dependencies {
+          implementation("com.caverock:androidsvg-aar:$androidSvgVersion")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
-  fun `Fail when two-part version exceeds restriction`() = runScenario("androidSvgVersion" to "1.4") {
-    generateBaseline()
-    val result = runTask(":app:checkTakDependencies", requiresAndroid = true).buildAndFail()
-
-    assertThat(result)
+  fun `Fail when two-part version exceeds restriction`() = runScenario {
+    dependencyGuardBaseline("-PandroidSvgVersion=1.4", withAndroidSdk = true)
+    assertThatTask(":app:checkTakDependencies", "-PandroidSvgVersion=1.4")
+      .withAndroidSdk()
+      .failsBuild()
       .taskFailed(":app:checkTakDependencies")
       .outputContains("com.caverock:androidsvg-aar:1.4 > 1.3")
   }
 
   @Test
-  fun `Succeed when two-part version is within restriction`() = runScenario("androidSvgVersion" to "1.3") {
-    generateBaseline()
-    val result = runTask(":app:checkTakDependencies", requiresAndroid = true).build()
-    assertThat(result).taskSucceeded(":app:checkTakDependencies")
+  fun `Succeed when two-part version is within restriction`() = runScenario {
+    dependencyGuardBaseline("-PandroidSvgVersion=1.3", withAndroidSdk = true)
+    assertThatTask(":app:checkTakDependencies", "-PandroidSvgVersion=1.3")
+      .withAndroidSdk()
+      .buildsSuccessfully()
+      .taskSucceeded(":app:checkTakDependencies")
   }
 }

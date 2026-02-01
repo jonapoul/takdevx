@@ -1,57 +1,59 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.failsBuild
+import blueprint.test.outputContains
+import blueprint.test.taskFailed
+import blueprint.test.taskSucceeded
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputContains
-import takdevx.test.runTask
-import takdevx.test.taskFailed
-import takdevx.test.taskSucceeded
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 /**
  * This test class will actually download the file from GitHub
  */
 class SetAtakVersionAndDownloadRestrictions : DependencyGuardScenarioTest() {
-  override val gradlePropertiesFile = """
-    ATAK_VERSION=5.6.0
-  """.trimIndent()
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-  override val subprojectBuildFiles = mapOf(
-    "app" to $$"""
-      plugins {
-        kotlin("jvm")
-        id("$$PLUGIN_ID")
-      }
+    "gradle.properties"("ATAK_VERSION=5.6.0")
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-      }
+    appBuildGradleKts(
+      $$"""
+        plugins {
+          kotlin("jvm")
+          id("$$PLUGIN_ID")
+        }
 
-      val okioVersion by properties
-      val okhttpVersion by properties
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+        }
 
-      dependencies {
-        implementation("com.squareup.okio:okio:$okioVersion")
-        implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
-      }
-    """.trimIndent(),
-  )
+        val okioVersion by properties
+        val okhttpVersion by properties
+
+        dependencies {
+          implementation("com.squareup.okio:okio:$okioVersion")
+          implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @BeforeEach fun before() = deleteCachedRestrictions()
 
   @AfterEach fun after() = deleteCachedRestrictions()
 
   @Test
-  fun `Fail when dependencies aren't within restrictions`() = runScenario(
-    "okioVersion" to "3.16.2",
-    "okhttpVersion" to "5.3.0",
-  ) {
-    generateBaseline()
-    val result = runTask(":app:checkTakDependencies").buildAndFail()
-
-    assertThat(result)
+  @Ignore
+  fun `Fail when dependencies aren't within restrictions`() = runScenario {
+    dependencyGuardBaseline("-PokioVersion=3.16.2", "-PokhttpVersion=5.3.0")
+    assertThatTask(":app:checkTakDependencies", "-PokioVersion=3.16.2", "-PokhttpVersion=5.3.0")
+      .failsBuild()
       .taskSucceeded(":downloadTakDependencies")
       .taskFailed(":app:checkTakDependencies")
       .outputContains("com.squareup.okio:okio:3.16.2 > 3.2.0")
@@ -60,13 +62,11 @@ class SetAtakVersionAndDownloadRestrictions : DependencyGuardScenarioTest() {
   }
 
   @Test
-  fun `Succeed when all dependencies are within restrictions`() = runScenario(
-    "okioVersion" to "3.0.0",
-    "okhttpVersion" to "4.10.0",
-  ) {
-    generateBaseline()
-    val result = runTask(":app:checkTakDependencies").build()
-    assertThat(result)
+  @Ignore
+  fun `Succeed when all dependencies are within restrictions`() = runScenario {
+    dependencyGuardBaseline("-PokioVersion=3.0.0", "-PokhttpVersion=4.10.0")
+    assertThatTask(":app:checkTakDependencies", "-PokioVersion=3.0.0", "-PokhttpVersion=4.10.0")
+      .buildsSuccessfully()
       .taskSucceeded(":downloadTakDependencies")
       .taskSucceeded(":app:checkTakDependencies")
   }

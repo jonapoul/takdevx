@@ -1,51 +1,59 @@
 package takdevx.dependencyguard
 
 import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputDoesNotContain
-import takdevx.test.runTask
-import takdevx.test.taskSucceeded
+import java.io.File
 import kotlin.test.Test
 
 class AllowedDependenciesVersionCatalog : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
+    "restrictions.txt"("com.squareup.okhttp3:okhttp:4.11.0")
 
-        // Use version catalog reference
-        allow(libs.androidx.core)
-      }
-    """.trimIndent(),
-  )
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
 
-  override val otherFiles = mapOf(
-    "gradle/libs.versions.toml" to """
-      [libraries]
-      androidx-core = { group = "androidx.core", name = "core", version = "1.18.0" }
-    """.trimIndent(),
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
 
-    "app/dependencies/runtimeClasspath.txt" to """
-      androidx.core:core:1.18.0
-    """.trimIndent(),
+          // Use version catalog reference
+          allow(libs.okhttp)
+        }
 
-    "restrictions.txt" to """
-      androidx.core:core:1.17.0
-    """.trimIndent(),
-  )
+        dependencies {
+          implementation(libs.okhttp)
+        }
+      """.trimIndent(),
+    )
+
+    libsVersionsToml(
+      """
+        [libraries]
+        okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "5.3.0" }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Version catalog reference allows dependency to bypass restriction`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").build()
+    dependencyGuardBaseline()
 
-    assertThat(result)
+    assertThat(rootDir.resolve("app/dependencies/runtimeClasspath.txt"))
+      .transform(transform = File::readText)
+      .contains("com.squareup.okhttp3:okhttp:5.3.0")
+
+    assertThatTask(":app:checkTakDependencies")
+      .buildsSuccessfully()
       .taskSucceeded(":app:checkTakDependencies")
-      .outputDoesNotContain("androidx.core:core:1.18.0")
   }
 }

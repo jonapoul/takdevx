@@ -16,8 +16,6 @@ public class TakdevxProjectPlugin : Plugin<Project> {
     registerTakDevLintTask(extension)
     registerManifestModification(extension)
 
-    val aarsDir = layout.projectDirectory.dir(".takdev/aars")
-
     val isDevKitEnabled = providers
       .gradleProperty("isDevKitEnabled")
       .map(String::toBoolean)

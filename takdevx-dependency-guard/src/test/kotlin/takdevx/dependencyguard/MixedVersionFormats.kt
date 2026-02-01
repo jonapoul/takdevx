@@ -1,49 +1,55 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
-import takdevx.test.runTask
-import takdevx.test.taskSucceeded
 import kotlin.test.Test
 
 class MixedVersionFormats : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
-      }
-    """.trimIndent(),
-  )
+    "restrictions.txt"(
+      """
+        com.caverock:androidsvg-aar:1.4
+        androidx.core:core:1.17.0
+        gov.tak.thirdparty:libLAS:1.8.2i
+        org.jetbrains.kotlin:kotlin-stdlib:2.2.0
+        com.google.guava:listenablefuture:1.0
+      """.trimIndent(),
+    )
 
-  override val otherFiles = mapOf(
-    "app/dependencies/runtimeClasspath.txt" to """
-      com.caverock:androidsvg-aar:1.4
-      androidx.core:core:1.17.0
-      gov.tak.thirdparty:libLAS:1.8.2i
-      org.jetbrains.kotlin:kotlin-stdlib:2.2.0
-      com.google.guava:listenablefuture:1.0
-    """.trimIndent(),
+    ("app" / "dependencies" / "runtimeClasspath.txt")(
+      """
+        com.caverock:androidsvg-aar:1.4
+        androidx.core:core:1.17.0
+        gov.tak.thirdparty:libLAS:1.8.2i
+        org.jetbrains.kotlin:kotlin-stdlib:2.2.0
+        com.google.guava:listenablefuture:1.0
+      """.trimIndent(),
+    )
 
-    "restrictions.txt" to """
-      com.caverock:androidsvg-aar:1.4
-      androidx.core:core:1.17.0
-      gov.tak.thirdparty:libLAS:1.8.2i
-      org.jetbrains.kotlin:kotlin-stdlib:2.2.0
-      com.google.guava:listenablefuture:1.0
-    """.trimIndent(),
-  )
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
+
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Handle mixed version formats from real ATAK restrictions`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").build()
-
-    assertThat(result)
+    assertThatTask(":app:checkTakDependencies", "-x", "dependencyGuard")
+      .buildsSuccessfully()
       .taskSucceeded(":app:checkTakDependencies")
   }
 }

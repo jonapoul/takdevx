@@ -1,41 +1,44 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.failsBuild
+import blueprint.test.outputContainsMatch
+import blueprint.test.taskFailed
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputContains
-import takdevx.test.runTask
-import takdevx.test.taskFailed
 import kotlin.test.Test
 
 class EmptyRestrictionsFile : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
-      }
-    """.trimIndent(),
-  )
+    "restrictions.txt"("")
 
-  override val otherFiles = mapOf(
-    "app/dependencies/runtimeClasspath.txt" to """
-      androidx.core:core:1.17.0
-    """.trimIndent(),
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
 
-    "restrictions.txt" to "",
-  )
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+        }
+
+        dependencies {
+          implementation("com.squareup.okio:okio:3.16.4")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Fail when restrictions file is empty`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").buildAndFail()
-
-    assertThat(result)
+    dependencyGuardBaseline()
+    assertThatTask(":app:checkTakDependencies")
+      .failsBuild()
       .taskFailed(":app:checkTakDependencies")
-      .outputContains("No versions found in .*?/restrictions.txt".toRegex())
+      .outputContainsMatch("No versions found in .*?/restrictions.txt".toRegex())
   }
 }

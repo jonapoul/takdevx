@@ -11,6 +11,7 @@ dependencies {
   fun compileOnlyPlugin(plugin: Provider<PluginDependency>) =
     compileOnly(plugin.map { "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version.requiredVersion}" })
 
+  compileOnlyPlugin(libs.plugins.blueprintTest)
   compileOnlyPlugin(libs.plugins.buildConfig)
   compileOnlyPlugin(libs.plugins.dependencyAnalysis)
   compileOnlyPlugin(libs.plugins.dependencyGuard)
@@ -22,7 +23,7 @@ dependencies {
   compileOnlyPlugin(libs.plugins.publish)
   compileOnlyPlugin(libs.plugins.publishReport)
 
-  implementation(libs.blueprint)
+  implementation(libs.blueprint.core)
 }
 
 gradlePlugin {

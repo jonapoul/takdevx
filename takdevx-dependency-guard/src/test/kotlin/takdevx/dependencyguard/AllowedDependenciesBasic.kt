@@ -1,77 +1,78 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
-import takdevx.test.outputContains
-import takdevx.test.outputDoesNotContain
-import takdevx.test.runTask
-import takdevx.test.taskFailed
-import takdevx.test.taskSucceeded
+import blueprint.test.assertThatTask
+import blueprint.test.buildsSuccessfully
+import blueprint.test.failsBuild
+import blueprint.test.outputContains
+import blueprint.test.outputDoesNotContain
+import blueprint.test.taskFailed
+import blueprint.test.taskSucceeded
+import takdevx.test.PLUGIN_ID
 import kotlin.test.Test
 
 class AllowedDependenciesBasic : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$pluginId")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
+    "gradle.properties"("android.useAndroidX=true")
 
-        // Allow androidx.core:core:1.18.0 to bypass restriction
-        allow("androidx.core", "core", "1.18.0")
-      }
-    """.trimIndent(),
-  )
+    "restrictions.txt"(
+      """
+        androidx.core:core:1.16.0
+        androidx.fragment:fragment:1.8.8
+      """.trimIndent(),
+    )
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("android")
+          id("com.android.library")
+          id("$PLUGIN_ID")
+        }
 
-  override val otherFiles = mapOf(
-    "app/dependencies/runtimeClasspath.txt" to """
-      androidx.core:core:1.18.0
-      androidx.fragment:fragment:1.9.0
-    """.trimIndent(),
+        android {
+          namespace = "com.example"
+          compileSdk = 36
+        }
 
-    "restrictions.txt" to """
-      androidx.core:core:1.17.0
-      androidx.fragment:fragment:1.8.9
-    """.trimIndent(),
-  )
+        val allowFragment = properties["allowFragment"] == "true"
+
+        takDependencyGuard {
+          configuration("debugRuntimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+
+          allow("androidx.core", "core", "1.17.0")
+          if (allowFragment) {
+            allow("androidx.fragment", "fragment", "1.8.9")
+          }
+        }
+
+        dependencies {
+          implementation("androidx.core:core:1.17.0")
+          implementation("androidx.fragment:fragment:1.8.9")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Allowed dependency bypasses restriction while non-allowed dependency still fails`() = runScenario {
-    val result = runTask(":app:checkTakDependencies").buildAndFail()
-
-    assertThat(result)
+    dependencyGuardBaseline(withAndroidSdk = true)
+    assertThatTask(":app:checkTakDependencies")
+      .withAndroidSdk()
+      .failsBuild()
       .taskFailed(":app:checkTakDependencies")
-      .outputContains("androidx.fragment:fragment:1.9.0 > 1.8.9")
-      .outputDoesNotContain("androidx.core:core:1.18.0")
+      .outputContains("androidx.fragment:fragment:1.8.9 > 1.8.8")
+      .outputDoesNotContain("androidx.core:core:1.17.0")
   }
 
   @Test
   fun `All dependencies pass when all violators are in allowlist`() = runScenario {
-    // Create a scenario where the only violation is allowed
-    val customBuildFile = """
-      plugins {
-        kotlin("jvm")
-        id("$pluginId")
-      }
-
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
-
-        // Allow both dependencies that would otherwise fail
-        allow("androidx.core", "core", "1.18.0")
-        allow("androidx.fragment", "fragment", "1.9.0")
-      }
-    """.trimIndent()
-
-    resolve("app/build.gradle.kts").writeText(customBuildFile)
-
-    val result = runTask(":app:checkTakDependencies").build()
-
-    assertThat(result)
+    dependencyGuardBaseline(withAndroidSdk = true)
+    assertThatTask(":app:checkTakDependencies", "-PallowFragment=true")
+      .withAndroidSdk()
+      .buildsSuccessfully()
       .taskSucceeded(":app:checkTakDependencies")
   }
 }

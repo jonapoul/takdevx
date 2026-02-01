@@ -8,7 +8,7 @@ import takdevx.TakdevxProjectExtension
 
 internal fun Project.log(
   extension: TakdevxProjectExtension,
-  message: String
+  message: String,
 ) = logger.logMethod(extension.verbose)(message)
 
 internal fun Task.log(verbose: Provider<Boolean>, message: String) = logger.logMethod(verbose)(message)

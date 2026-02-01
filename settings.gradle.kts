@@ -1,29 +1,9 @@
-@file:Suppress("UnstableApiUsage")
-
 rootProject.name = "takdevx"
+
+apply(from = "gradle/repositories.gradle.kts")
 
 pluginManagement {
   includeBuild("build-logic")
-  repositories {
-    google {
-      mavenContent {
-        includeGroupByRegex(".*android.*")
-        includeGroupByRegex(".*google.*")
-      }
-    }
-    mavenCentral()
-    gradlePluginPortal()
-    mavenLocal()
-  }
-}
-
-dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-  repositories {
-    google()
-    mavenCentral()
-    mavenLocal()
-  }
 }
 
 plugins {
@@ -39,7 +19,6 @@ include(
   ":takdevx-dependency-guard",
   ":takdevx-detekt",
   ":takdevx-gradle-plugin",
-  ":takdevx-test",
 )
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")

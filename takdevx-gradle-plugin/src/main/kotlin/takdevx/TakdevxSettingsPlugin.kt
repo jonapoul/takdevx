@@ -19,7 +19,7 @@ public class TakdevxSettingsPlugin : Plugin<Settings> {
   private fun Settings.initialise(extension: TakdevxSettingsExtension) = with(extension) {
     val localProperties = localProperties()
 
-    fun string(key: String) = providers.gradleProperty(key).orElse(localProperties.map { it[key] })
+    fun string(key: String) = localProperties.map { it[key] }.orElse(providers.gradleProperty(key))
     fun bool(key: String) = string(key).map(String::toBoolean)
 
     mavenOnly.convention(bool("takdevx.mavenOnly").orElse(false))

@@ -1,41 +1,41 @@
 package takdevx.dependencyguard
 
-import assertk.assertThat
+import blueprint.test.assertThatTask
+import blueprint.test.failsBuild
+import blueprint.test.outputContains
+import blueprint.test.taskFailed
 import takdevx.test.PLUGIN_ID
-import takdevx.test.outputContains
-import takdevx.test.runTask
-import takdevx.test.taskFailed
 import kotlin.test.Test
 
 class NoDependencyGuardFiles : DependencyGuardScenarioTest() {
-  override val subprojectBuildFiles = mapOf(
-    "app" to """
-      plugins {
-        kotlin("jvm")
-        id("$PLUGIN_ID")
-      }
+  override val fileTree = fileTree {
+    settingsGradleKts()
+    rootBuildGradleKts()
 
-      takDependencyGuard {
-        configuration("runtimeClasspath")
-        restrictionsFile = rootProject.file("restrictions.txt")
-      }
-    """.trimIndent(),
-  )
+    "restrictions.txt"("androidx.core:core:1.17.0")
 
-  override val otherFiles = mapOf(
-    "restrictions.txt" to """
-      androidx.core:core:1.17.0
-    """.trimIndent(),
-  )
+    appBuildGradleKts(
+      """
+        plugins {
+          kotlin("jvm")
+          id("$PLUGIN_ID")
+        }
+
+        takDependencyGuard {
+          configuration("runtimeClasspath")
+          restrictionsFile = rootProject.file("restrictions.txt")
+        }
+      """.trimIndent(),
+    )
+  }
 
   @Test
   fun `Fail when no dependency guard files exist`() = runScenario {
     // Create empty dependencies directory
-    resolve("app/dependencies").mkdirs()
+    rootDir.resolve("app/dependencies").mkdirs()
 
-    val result = runTask(":app:checkTakDependencies").buildAndFail()
-
-    assertThat(result)
+    assertThatTask(":app:checkTakDependencies", "-x", "dependencyGuard")
+      .failsBuild()
       .taskFailed(":app:checkTakDependencies")
       .outputContains("No dependency guard files found")
   }

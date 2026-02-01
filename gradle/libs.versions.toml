@@ -1,12 +1,14 @@
 [versions]
 agp = "8.13.0"
+blueprint = "2.0.0-SNAPSHOT"
 detekt = "2.0.0-alpha.1"
 junit = "6.0.2"
 kotlin = "2.1.0"
 
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk", version = "0.28.1" }
-blueprint = { module = "dev.jonpoulton.blueprint:core", version = "2.0.0-SNAPSHOT" }
+blueprint-core = { module = "dev.jonpoulton.blueprint:core", version.ref = "blueprint" }
+blueprint-assertk = { module = "dev.jonpoulton.blueprint:test-assertk", version.ref = "blueprint" }
 detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 detekt-testJunit = { module = "dev.detekt:detekt-test-junit", version.ref = "detekt" }
@@ -17,6 +19,7 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 
 [plugins]
 agp-app = { id = "com.android.application", version.ref = "agp" }
+blueprintTest = { id = "dev.jonpoulton.blueprint.test", version.ref = "blueprint" }
 buildConfig = { id = "com.github.gmazzo.buildconfig", version = "5.5.1" }
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "3.5.1" }
 dependencyGuard = { id = "com.dropbox.dependency-guard", version = "0.5.0" }
