@@ -39,7 +39,8 @@ class VersionWithLetterSuffix : DependencyGuardScenarioTest() {
 
   @Test
   fun `Fail if non-numeric versions aren't within restrictions`() = runScenario {
-    rootDir.resolve("app/dependencies/runtimeClasspath.txt")
+    rootDir
+      .resolve("app/dependencies/runtimeClasspath.txt")
       .also { it.parentFile.mkdirs() }
       .writeText(
         """
@@ -58,7 +59,8 @@ class VersionWithLetterSuffix : DependencyGuardScenarioTest() {
 
   @Test
   fun `Succeed if non-numeric versions are within restrictions`() = runScenario {
-    rootDir.resolve("app/dependencies/runtimeClasspath.txt")
+    rootDir
+      .resolve("app/dependencies/runtimeClasspath.txt")
       .also { it.parentFile.mkdirs() }
       .writeText(
         """

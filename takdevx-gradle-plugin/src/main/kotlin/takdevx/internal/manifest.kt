@@ -4,9 +4,8 @@ import com.android.build.gradle.tasks.ProcessApplicationManifest
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.w3c.dom.Element
-import takdevx.TakdevxProjectExtension
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
@@ -14,26 +13,25 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-internal fun Project.registerManifestModification(extension: TakdevxProjectExtension) {
+internal fun Project.registerManifestModification(config: TakdevConfig) {
   pluginManager.withPlugin("com.android.application") {
-    val metadataMap = extension.pluginId
+    val metadataMap = config.pluginId
       .map { id -> mapOf("plugin-id" to id) }
       .orElse(emptyMap())
 
     // e.g. processCivDebugMainManifest
     tasks.withType(ProcessApplicationManifest::class.java).configureEach { t ->
       t.inputs.property("metadataMap", metadataMap)
-      t.inputs.property("verbose", extension.verbose)
+      t.inputs.property("verbose", config.verbose)
       t.doLast {
         val manifest = t.mergedManifest.get().asFile
-        t.modifyManifest(manifest, metadataMap.get(), extension.verbose)
+        t.modifyManifest(manifest, metadataMap.get(), config.verbose)
       }
     }
   }
 }
 
-@Suppress("HttpUrlsUsage")
-private fun Task.modifyManifest(manifestFile: File, metadata: Map<String, String>, verbose: Property<Boolean>) {
+private fun Task.modifyManifest(manifestFile: File, metadata: Map<String, String>, verbose: Provider<Boolean>) {
   val docFactory = DocumentBuilderFactory.newInstance()
   docFactory.isNamespaceAware = true
   val docBuilder = docFactory.newDocumentBuilder()
@@ -44,6 +42,7 @@ private fun Task.modifyManifest(manifestFile: File, metadata: Map<String, String
     .item(0) as? Element
     ?: throw GradleException("No <application> element found in $manifestFile")
 
+  @Suppress("HttpUrlsUsage")
   val androidNs = "http://schemas.android.com/apk/res/android"
   var changed = false
 

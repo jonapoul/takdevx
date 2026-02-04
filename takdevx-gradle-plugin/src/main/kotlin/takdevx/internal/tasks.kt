@@ -1,16 +1,13 @@
 package takdevx.internal
 
 import org.gradle.api.Project
-import takdevx.TakdevxProjectExtension
 
-internal fun Project.registerTasks(extension: TakdevxProjectExtension) {
+internal fun Project.registerTasks(config: TakdevConfig) {
   tasks.register("getTargetVersion") { t ->
-    t.group = "metadata"
-    t.description = "Gets this plugin's targeted ATAK version"
-    val devkitVersion = extension.devkitVersion
+    group = "metadata"
+    description = "Gets this plugin's targeted ATAK version"
+    val devkitVersion = config.devkitVersion
     t.inputs.property("devkitVersion", devkitVersion)
-    t.doLast {
-      t.logger.lifecycle(devkitVersion.get())
-    }
+    t.doLast { logger.lifecycle(devkitVersion.get()) }
   }
 }

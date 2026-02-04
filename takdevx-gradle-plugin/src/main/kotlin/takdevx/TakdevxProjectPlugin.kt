@@ -3,56 +3,91 @@ package takdevx
 import blueprint.core.localProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import takdevx.internal.TakdevConfig
+import takdevx.internal.configureMaven
+import takdevx.internal.configureOffline
+import takdevx.internal.devKit
+import takdevx.internal.registerConfigCheckTask
 import takdevx.internal.registerFlavors
 import takdevx.internal.registerManifestModification
-import takdevx.internal.registerTakDevLintTask
 import takdevx.internal.registerTasks
 
 public class TakdevxProjectPlugin : Plugin<Project> {
   override fun apply(target: Project): Unit = with(target) {
-    val extension = extensions.create("takdevX", TakdevxProjectExtension::class.java)
-    setDefaults(extension)
+    @Suppress("UnstableApiUsage")
+    val config = TakdevConfig(
+      providers = providers,
+      localProperties = localProperties(),
+      rootDir = rootProject.isolated.projectDirectory.asFile,
+    )
 
-    registerTakDevLintTask(extension)
-    registerManifestModification(extension)
+    // Validate configuration early
+    validateConfig(config)
 
-    val isDevKitEnabled = providers
-      .gradleProperty("isDevKitEnabled")
-      .map(String::toBoolean)
-      .orElse(provider { "takrepo.url" in properties })
-
-    // TODO: if (project.mavenOnly) {
-
-    registerTasks(extension)
-    // TODO addUtilities
-
+    registerConfigCheckTask(config)
+    registerManifestModification(config)
+    registerTasks(config)
     registerFlavors()
+
+    // Configure dependencies based on availability
+    if (config.mavenOnly.get()) {
+      configureMaven(config)
+    } else {
+      when (val devKit = devKit(config.sdkPath)) {
+        null -> configureMaven(config)
+        else -> configureOffline(devKit, config)
+      }
+    }
   }
 
-  private fun Project.setDefaults(extension: TakdevxProjectExtension) = with(extension) {
-    @Suppress("UnstableApiUsage")
-    val rootDir = rootProject.isolated.projectDirectory
-    val thisDir = layout.projectDirectory
-    val localProperties = localProperties()
+  private fun Project.validateConfig(config: TakdevConfig) {
+    // Validate ATAK_VERSION format
+    val devkitVersion = config.devkitVersion.get()
+    require(devkitVersion.matches(Regex("""\d+\.\d+\.\d+.*"""))) {
+      """
+      |Invalid ATAK_VERSION format: '$devkitVersion'
+      |Expected format: X.Y.Z (e.g., 5.4.0)
+      |
+      |Set ATAK_VERSION in gradle.properties or via -PATAK_VERSION=...
+      """.trimMargin()
+    }
 
-    fun string(key: String) = localProperties.map { it[key] }.orElse(providers.gradleProperty(key))
-    fun bool(key: String) = string(key).map(String::toBoolean)
-    fun int(key: String) = string(key).map(String::toInt)
-    fun dir(key: String) = string(key).map(thisDir::dir)
+    // Validate Maven configuration if mavenOnly is true
+    if (config.mavenOnly.get()) {
+      require(config.repoUrl.isPresent) {
+        """
+        |mavenOnly=true requires repository URL to be configured
+        |
+        |Set takrepo.url in local.properties or gradle.properties
+        |Example: takrepo.url=https://your-maven-repo.com/repository
+        """.trimMargin()
+      }
 
-    val atakVersion = providers.gradleProperty("ATAK_VERSION")
-    devkitVersion.convention(string("takdevx.devkitVersion").orElse(atakVersion))
-    verbose.convention(bool("takdevx.verbose").orElse(false))
-    pluginId.convention(string("takdevx.metadata.pluginId"))
-    snapshot.convention(bool("takdevx.snapshot").orElse(false))
-    requireMavenLocal.convention(bool("takdevx.requireMavenLocal").orElse(false))
-    sdkPath.convention(dir("takdevx.sdkPath").orElse(rootDir.dir("sdk")))
-    production.convention(bool("takdevx.production").orElse(false))
-    noApp.convention(bool("takdevx.noApp").orElse(false))
-    conTestEnable.convention(bool("takdevx.conTestEnable").orElse(false))
-    staticVersion.convention(int("takdevx.staticVersion").orElse(-1))
-    conTestVersion.convention(string("takdevx.conTestVersion").orElse(devkitVersion))
-    conTestPath.convention(dir("takdevx.conTestPath").orElse(rootDir.dir("espresso")))
-    metadataPluginId.convention(string("takdevx.metadataPluginId"))
+      require(config.repoUser.isPresent && config.repoPassword.isPresent) {
+        """
+        |mavenOnly=true requires repository credentials to be configured
+        |
+        |Set in local.properties:
+        |  takrepo.user=your-username
+        |  takrepo.password=your-password
+        """.trimMargin()
+      }
+    }
+
+    // Warn if using Maven but credentials aren't set
+    if (!config.mavenOnly.get() && config.repoUrl.isPresent) {
+      if (!config.repoUser.isPresent || !config.repoPassword.isPresent) {
+        logger.warn(
+          """
+          |Repository URL is configured but credentials are missing
+          |Maven resolution may fail if authentication is required
+          |
+          |Set in local.properties:
+          |  takrepo.user=your-username
+          |  takrepo.password=your-password
+          """.trimMargin(),
+        )
+      }
+    }
   }
 }

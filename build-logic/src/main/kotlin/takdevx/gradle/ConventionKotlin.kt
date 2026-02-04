@@ -10,9 +10,10 @@ import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class ConventionKotlin : Plugin<Project> {
-  override fun apply(target: Project) = with(target) {
+  override fun apply(target: Project): Unit = with(target) {
     with(pluginManager) {
       apply(KotlinPluginWrapper::class)
       apply(BinaryCompatibilityValidatorPlugin::class)
@@ -39,5 +40,8 @@ class ConventionKotlin : Plugin<Project> {
       sourceCompatibility = version
       targetCompatibility = version
     }
+
+    val compileTasks = tasks.withType(KotlinCompile::class.java)
+    tasks.register("compileAll") { dependsOn(compileTasks) }
   }
 }

@@ -29,7 +29,7 @@ class GroovyBuildScript : DependencyGuardScenarioTest() {
         }
 
         include ":app"
-      """.trimIndent()
+      """.trimIndent(),
     )
 
     "build.gradle"(
@@ -38,7 +38,7 @@ class GroovyBuildScript : DependencyGuardScenarioTest() {
           id 'org.jetbrains.kotlin.jvm' apply false
           id '$PLUGIN_ID' apply false
         }
-      """.trimIndent()
+      """.trimIndent(),
     )
 
     "restrictions.txt"("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")

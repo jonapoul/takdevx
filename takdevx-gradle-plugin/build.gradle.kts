@@ -27,7 +27,6 @@ dependencies {
   compileOnly(pluginDependency(libs.plugins.kotlin))
   implementation(libs.blueprint.core)
 
-//  testImplementation(project(":takdevx-test"))
   testPluginClasspath(pluginDependency(libs.plugins.agp.app))
   testPluginClasspath(pluginDependency(libs.plugins.kotlin))
   testPluginClasspath(pluginDependency(libs.plugins.dependencyGuard))

@@ -12,11 +12,11 @@ internal fun Project.registerFlavors() {
   pluginManager.withPlugin("com.android.application") {
     extensions.getByType(ApplicationExtension::class.java).productFlavors {
       allFlavors.get().forEach { name ->
-        register(name) { flavor ->
-          flavor.dimension = "application"
-          flavor.applicationIdSuffix = ".$name"
-          flavor.matchingFallbacks.add("civ")
-          flavor.manifestPlaceholders["atakApiVersion"] = "com.atakmap.app@${atakVersion.get()}.${name.uppercase()}"
+        register(name) { t ->
+          t.dimension = "application"
+          t.applicationIdSuffix = ".$name"
+          t.matchingFallbacks.add("civ")
+          t.manifestPlaceholders["atakApiVersion"] = "com.atakmap.app@${atakVersion.get()}.${name.uppercase()}"
         }
       }
     }

@@ -1,27 +1,7 @@
-public abstract interface class takdevx/TakdevxProjectExtension {
-	public abstract fun getConTestEnable ()Lorg/gradle/api/provider/Property;
-	public abstract fun getConTestPath ()Lorg/gradle/api/file/DirectoryProperty;
-	public abstract fun getConTestVersion ()Lorg/gradle/api/provider/Property;
-	public abstract fun getDevkitVersion ()Lorg/gradle/api/provider/Property;
-	public abstract fun getMetadataPluginId ()Lorg/gradle/api/provider/Property;
-	public abstract fun getNoApp ()Lorg/gradle/api/provider/Property;
-	public abstract fun getPluginId ()Lorg/gradle/api/provider/Property;
-	public abstract fun getProduction ()Lorg/gradle/api/provider/Property;
-	public abstract fun getRequireMavenLocal ()Lorg/gradle/api/provider/Property;
-	public abstract fun getSdkPath ()Lorg/gradle/api/file/DirectoryProperty;
-	public abstract fun getSnapshot ()Lorg/gradle/api/provider/Property;
-	public abstract fun getStaticVersion ()Lorg/gradle/api/provider/Property;
-	public abstract fun getVerbose ()Lorg/gradle/api/provider/Property;
-}
-
 public final class takdevx/TakdevxProjectPlugin : org/gradle/api/Plugin {
 	public fun <init> ()V
 	public synthetic fun apply (Ljava/lang/Object;)V
 	public fun apply (Lorg/gradle/api/Project;)V
-}
-
-public abstract interface class takdevx/TakdevxSettingsExtension {
-	public abstract fun getMavenOnly ()Lorg/gradle/api/provider/Property;
 }
 
 public final class takdevx/TakdevxSettingsPlugin : org/gradle/api/Plugin {

@@ -12,12 +12,11 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity.RELATIVE
 import org.gradle.api.tasks.TaskAction
-import takdevx.TakdevxProjectExtension
 import java.io.File
 
-internal fun Project.registerTakDevLintTask(extension: TakdevxProjectExtension) {
-  val takDevLint = tasks.register("takdevLint", TakDevLint::class.java) { t ->
-    t.verbose.convention(extension.verbose)
+internal fun Project.registerConfigCheckTask(config: TakdevConfig) {
+  val takDevConfigCheck = tasks.register("takdevConfigCheck", TakDevConfigCheck::class.java) { t ->
+    t.verbose.convention(config.verbose)
     t.isAndroidApp.convention(false)
     t.minify.convention(false)
     t.storeArchive.convention(false)
@@ -29,7 +28,7 @@ internal fun Project.registerTakDevLintTask(extension: TakdevxProjectExtension) 
   pluginManager.withPlugin("com.android.application") {
     val android = extensions.getByType(ApplicationExtension::class.java)
     val release = android.buildTypes.named("release")
-    takDevLint.configure { t ->
+    takDevConfigCheck.configure { t ->
       t.isAndroidApp.set(true)
       t.minify.set(release.map { it.isMinifyEnabled })
       t.storeArchive.set(android.bundle.storeArchive.enable)
@@ -39,26 +38,18 @@ internal fun Project.registerTakDevLintTask(extension: TakdevxProjectExtension) 
 
   pluginManager.withPlugin("com.android.base") {
     val android = extensions.getByType(CommonExtension::class.java)
-    takDevLint.configure { t ->
+    takDevConfigCheck.configure { t ->
       t.useLegacyPackaging.set(android.packaging.jniLibs.useLegacyPackaging)
     }
   }
 
   pluginManager.withPlugin("base") {
-    tasks.named("check") { it.dependsOn(takDevLint) }
-  }
-
-  pluginManager.withPlugin("com.android.lint") {
-    tasks.named("lint") { t -> t.dependsOn(takDevLint) }
-  }
-
-  pluginManager.withPlugin("com.android.base") {
-    tasks.named("lint") { t -> t.dependsOn(takDevLint) }
+    tasks.named("check") { t -> t.dependsOn(takDevConfigCheck) }
   }
 }
 
 @CacheableTask
-private abstract class TakDevLint : DefaultTask() {
+private abstract class TakDevConfigCheck : DefaultTask() {
   @get:Input
   abstract val verbose: Property<Boolean>
 
