@@ -1,7 +1,7 @@
 com.willowtreeapps.assertk:assertk-jvm:0.28.1
 com.willowtreeapps.assertk:assertk:0.28.1
-dev.jonpoulton.blueprint:test-assertk:2.0.0-SNAPSHOT
-dev.jonpoulton.blueprint:test-runtime:2.0.0-SNAPSHOT
+dev.jonpoulton.blueprint:test-assertk:2.0.0
+dev.jonpoulton.blueprint:test-runtime:2.0.0
 org.apiguardian:apiguardian-api:1.1.2
 org.jetbrains.kotlin:kotlin-stdlib:2.1.0
 org.jetbrains.kotlin:kotlin-test:2.1.0

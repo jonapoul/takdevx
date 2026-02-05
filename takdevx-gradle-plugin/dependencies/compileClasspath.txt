@@ -9,7 +9,7 @@ com.android.tools.build:gradle:8.13.0
 com.android.tools.build:manifest-merger:31.13.0
 com.android:zipflinger:8.13.0
 com.squareup:javawriter:2.5.0
-dev.jonpoulton.blueprint:core:2.0.0-SNAPSHOT
+dev.jonpoulton.blueprint:core:2.0.0
 org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.1.0
 org.jetbrains.kotlin:kotlin-build-tools-api:2.1.0
 org.jetbrains.kotlin:kotlin-gradle-plugin-annotations:2.1.0
