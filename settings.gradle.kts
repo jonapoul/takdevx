@@ -1,26 +1,25 @@
-@file:Suppress("UnstableApiUsage")
-
 rootProject.name = "takdevx"
 
+apply(from = "gradle/repositories.gradle.kts")
+
 pluginManagement {
-  repositories {
-    google {
-      mavenContent {
-        includeGroupByRegex(".*android.*")
-        includeGroupByRegex(".*google.*")
-      }
-    }
-    mavenCentral()
-    gradlePluginPortal()
-  }
+  includeBuild("build-logic")
 }
 
-dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-  repositories {
-    google()
-    mavenCentral()
-  }
+plugins {
+  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+  id("com.gradle.develocity") version "4.3.1"
 }
 
-include(":tak-dependency-guard")
+develocity {
+  buildScan.publishing.onlyIf { false }
+}
+
+include(
+  ":takdevx-dependency-guard",
+  ":takdevx-detekt",
+  ":takdevx-gradle-plugin",
+  ":takdevx-test",
+)
+
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")

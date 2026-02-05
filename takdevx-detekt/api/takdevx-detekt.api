@@ -1,0 +1,6 @@
+public final class takdevx/detekt/TakdevxRuleSetProvider : dev/detekt/api/RuleSetProvider {
+	public fun <init> ()V
+	public fun getRuleSetId ()Ldev/detekt/api/RuleSet$Id;
+	public fun instance ()Ldev/detekt/api/RuleSet;
+}
+

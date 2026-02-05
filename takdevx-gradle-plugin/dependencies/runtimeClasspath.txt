@@ -1,0 +1,1 @@
+dev.jonpoulton.blueprint:core:2.0.0-SNAPSHOT
