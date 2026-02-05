@@ -1,20 +1,17 @@
 package takdevx.dependencyguard
 
 import assertk.Assert
-import blueprint.test.DEFAULT_REPOSITORIES_KTS
-import blueprint.test.FileTree
 import blueprint.test.Scenario
-import blueprint.test.ScenarioTest
 import blueprint.test.assertThatTask
 import blueprint.test.buildsSuccessfully
 import org.gradle.testkit.runner.BuildResult
-import org.intellij.lang.annotations.Language
-import takdevx.test.GRADLE_VERSION
+import takdevx.test.BasicScenarioTest
 import takdevx.test.PLUGIN_ID
+import takdevx.test.withAndroidSdk
 import java.io.File
 
-abstract class DependencyGuardScenarioTest : ScenarioTest() {
-  override val gradleVersion = GRADLE_VERSION
+abstract class DependencyGuardScenarioTest : BasicScenarioTest() {
+  override val pluginId: String = PLUGIN_ID
 
   protected fun deleteCachedRestrictions() {
     System
@@ -33,29 +30,4 @@ abstract class DependencyGuardScenarioTest : ScenarioTest() {
   ): Assert<BuildResult> = assertThatTask("dependencyGuardBaseline", *args)
     .apply { if (withAndroidSdk) withAndroidSdk() }
     .buildsSuccessfully()
-
-  protected fun FileTree.Builder.settingsGradleKts() = "settings.gradle.kts"(
-    """
-      $DEFAULT_REPOSITORIES_KTS
-      include(":app")
-    """.trimIndent(),
-  )
-
-  protected fun FileTree.Builder.rootBuildGradleKts() = "build.gradle.kts"(
-    """
-      plugins {
-        kotlin("jvm") apply false
-        kotlin("android") apply false
-        id("$PLUGIN_ID") apply false
-      }
-    """.trimIndent(),
-  )
-
-  protected fun FileTree.Builder.libsVersionsToml(
-    @Language("toml") content: String,
-  ) = ("gradle" / "libs.versions.toml")(content)
-
-  protected fun FileTree.Builder.appBuildGradleKts(
-    @Language("kotlin") content: String,
-  ) = ("app" / "build.gradle.kts")(content)
 }

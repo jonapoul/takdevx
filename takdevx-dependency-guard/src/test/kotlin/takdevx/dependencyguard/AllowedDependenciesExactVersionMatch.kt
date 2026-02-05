@@ -5,6 +5,7 @@ import blueprint.test.failsBuild
 import blueprint.test.outputContains
 import blueprint.test.taskFailed
 import takdevx.test.PLUGIN_ID
+import takdevx.test.withAndroidSdk
 import kotlin.test.Test
 
 class AllowedDependenciesExactVersionMatch : DependencyGuardScenarioTest() {

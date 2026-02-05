@@ -29,25 +29,27 @@ public class TakdevxSettingsPlugin : Plugin<Settings> {
   private fun Settings.configureMaven(config: TakdevConfig) {
     log(config, "Configuring Maven TAK plugin build")
 
-    dependencyResolutionManagement { d ->
+    dependencyResolutionManagement.apply {
       @Suppress("UnstableApiUsage")
-      d.repositories { r ->
-        r.maven { m ->
+      repositories.apply {
+        maven { m ->
           m.setUrl(config.repoUrl.get())
-          m.credentials { c ->
-            c.username = config.repoUser.get()
-            c.password = config.repoPassword.get()
+          m.credentials.apply {
+            username = config.repoUser.get()
+            password = config.repoPassword.get()
           }
         }
 
         if (config.requireMavenLocal.get()) {
-          r.mavenLocal()
+          mavenLocal()
         }
       }
     }
   }
 
   private fun Settings.configureOffline(devKit: DevKit, properties: TakdevConfig) {
-    log(properties, "Configuring TakDev plugin build with $devKit")
+    log(properties, "Configuring offline TakDev plugin build with $devKit")
+
+    // TBC?
   }
 }

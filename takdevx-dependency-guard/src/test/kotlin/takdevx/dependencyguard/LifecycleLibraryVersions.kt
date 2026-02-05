@@ -4,6 +4,7 @@ import blueprint.test.assertThatTask
 import blueprint.test.buildsSuccessfully
 import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
+import takdevx.test.withAndroidSdk
 import kotlin.test.Test
 
 class LifecycleLibraryVersions : DependencyGuardScenarioTest() {

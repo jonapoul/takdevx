@@ -5,6 +5,7 @@ import blueprint.test.assertThatTask
 import blueprint.test.buildsSuccessfully
 import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
+import takdevx.test.contains
 import java.io.File
 import kotlin.test.Test
 

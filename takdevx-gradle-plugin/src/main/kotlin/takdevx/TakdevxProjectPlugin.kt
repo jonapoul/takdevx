@@ -27,7 +27,7 @@ public class TakdevxProjectPlugin : Plugin<Project> {
     registerConfigCheckTask(config)
     registerManifestModification(config)
     registerTasks(config)
-    registerFlavors()
+    registerFlavors(config)
 
     // Configure dependencies based on availability
     if (config.mavenOnly.get()) {

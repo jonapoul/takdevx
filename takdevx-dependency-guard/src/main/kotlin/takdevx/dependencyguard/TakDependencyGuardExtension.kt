@@ -48,12 +48,10 @@ public abstract class TakDependencyGuardExtension @Inject constructor(project: P
     project.extensions.getByType(DependencyGuardPluginExtension::class.java)
   }
 
-  @Suppress("MaxLineLength")
   /**
    * ATAK version string (e.g. "5.6.0") to download known restrictions from GitHub.
    *
-   * When set, the plugin downloads restrictions from:
-   * `https://raw.githubusercontent.com/jonapoul/takdevx/main/takdevx-dependency-guard/atak-versions/restrictions-{version}.txt`
+   * When set, the plugin downloads restrictions from the configured URL
    *
    * This is the highest priority configuration option.
    *

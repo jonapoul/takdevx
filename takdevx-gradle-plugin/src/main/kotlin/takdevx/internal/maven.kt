@@ -5,6 +5,7 @@ package takdevx.internal
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
+import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolveException
@@ -183,8 +184,8 @@ private fun Project.configureVariant(
   }
 
   // APK zip configuration (only for applications)
-  if (!isLibrary && !config.noApp.get()) {
-    val apkZipConfig = configurations.create(apkZipConfigName) { c ->
+  if (!isLibrary && !config.noApp.getOrElse(false)) {
+    val apkZipConfig = configurations.register(apkZipConfigName) { c ->
       c.isCanBeConsumed = false
       c.isCanBeResolved = true
     }
@@ -209,7 +210,7 @@ private fun Project.configureVariant(
   }
 
   // Mapping configuration - with fallback to civ
-  val mappingConfig = configurations.create(mappingConfigName) { c ->
+  val mappingConfig = configurations.register(mappingConfigName) { c ->
     c.isCanBeConsumed = false
     c.isCanBeResolved = true
   }
@@ -217,18 +218,15 @@ private fun Project.configureVariant(
     mapOf("group" to mavenGroupTyped, "name" to "mapping", "version" to version)
   }
 
-  val resolvedMappingCoord = resolveWithFallback(mappingCoord.get(), devFlavor, variantName, config)
-  if (resolvedMappingCoord == null) {
-    // Skip variant configuration if mapping cannot be resolved
-    return
-  }
+  // Skip variant configuration if mapping cannot be resolved
+  val resolvedMappingCoord = resolveWithFallback(mappingCoord.get(), devFlavor, variantName, config) ?: return
 
   dependencies.add(mappingConfigName, resolvedMappingCoord)
   log(config, "$variantName => Using mapping coordinate: $resolvedMappingCoord")
 
   // Core rules configuration (if needed)
   val coreRulesConfig = if (usesCoreMappingRules.get()) {
-    val coreRulesConf = configurations.create(coreRulesConfigName) { c ->
+    val coreRulesConf = configurations.register(coreRulesConfigName) { c ->
       c.isCanBeConsumed = false
       c.isCanBeResolved = true
     }
@@ -251,7 +249,7 @@ private fun Project.configureVariant(
   }
 
   // Keystore configuration - with fallback to civ
-  val keystoreConfig = configurations.create(keystoreConfigName) { c ->
+  val keystoreConfig = configurations.register(keystoreConfigName) { c ->
     c.isCanBeConsumed = false
     c.isCanBeResolved = true
   }
@@ -282,7 +280,7 @@ private fun Project.configureVariant(
 
 private fun Project.configureAssembleTask(
   variantName: String,
-  apkZipConfig: Configuration,
+  apkZipConfig: NamedDomainObjectProvider<Configuration>,
   config: TakdevConfig,
 ) {
   tasks.named("assemble${variantName.capitalized()}").configure { t ->
@@ -322,8 +320,8 @@ private fun Project.configurePreBuildTask(
   variantName: String,
   devFlavor: String,
   devType: String,
-  mappingConfig: Configuration,
-  coreRulesConfig: Configuration?,
+  mappingConfig: NamedDomainObjectProvider<Configuration>,
+  coreRulesConfig: NamedDomainObjectProvider<Configuration?>?,
   usesCoreMappingRules: Boolean,
   config: TakdevConfig,
 ) {
@@ -390,7 +388,7 @@ private fun Project.configurePreBuildTask(
 
 private fun Project.configureValidateSigningTasks(
   variantName: String,
-  keystoreConfig: Configuration,
+  keystoreConfig: NamedDomainObjectProvider<Configuration>,
   config: TakdevConfig,
 ) {
   val storeName = "android_keystore"

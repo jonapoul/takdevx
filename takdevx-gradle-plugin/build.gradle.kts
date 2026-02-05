@@ -1,5 +1,6 @@
 import blueprint.core.gitVersionHash
 import takdevx.gradle.pluginDependency
+import takdevx.gradle.pluginId
 
 plugins {
   id("takdevx.plugin")
@@ -8,8 +9,8 @@ plugins {
 gradlePlugin {
   plugins {
     create("atak-gradle-takdevx") {
-      id = "dev.jonpoulton.takdevx"
-      implementationClass = "takdevx.TakdevProjectPlugin"
+      id = project.pluginId
+      implementationClass = "takdevx.TakdevxProjectPlugin"
       displayName = "ATAK Gradle Takdevx"
       tags.addAll("takdev", "takdevx")
     }
@@ -26,10 +27,9 @@ dependencies {
   compileOnly(pluginDependency(libs.plugins.agp.app))
   compileOnly(pluginDependency(libs.plugins.kotlin))
   implementation(libs.blueprint.core)
-
+  testImplementation(project(":takdevx-test"))
   testPluginClasspath(pluginDependency(libs.plugins.agp.app))
   testPluginClasspath(pluginDependency(libs.plugins.kotlin))
-  testPluginClasspath(pluginDependency(libs.plugins.dependencyGuard))
 }
 
 val gitVersion = providers.gitVersionHash()

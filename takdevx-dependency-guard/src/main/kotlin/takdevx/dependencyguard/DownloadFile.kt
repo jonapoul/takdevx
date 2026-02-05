@@ -24,14 +24,8 @@ import java.net.URI
  */
 @CacheableTask
 public abstract class DownloadFile : DefaultTask() {
-  @Suppress("MaxLineLength")
   /**
-   * The URL to download from.
-   *
-   * Can be a GitHub raw content URL or any custom URL pointing to a restrictions file.
-   *
-   * Example:
-   * `https://raw.githubusercontent.com/jonapoul/takdevx/main/takdevx-dependency-guard/atak-versions/restrictions-5.6.0.txt`
+   * The URL to download from. Can be a GitHub raw content URL or any custom URL pointing to a restrictions file.
    */
   @get:Input
   public abstract val url: Property<String>

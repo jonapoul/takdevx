@@ -1,0 +1,16 @@
+public final class takdevx/test/AssertionsKt {
+	public static final fun contains (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun doesNotContain (Lassertk/Assert;Ljava/lang/String;)Lassertk/Assert;
+	public static final fun withAndroidSdk (Lassertk/Assert;)Lassertk/Assert;
+}
+
+public abstract class takdevx/test/BasicScenarioTest : blueprint/test/ScenarioTest {
+	public fun <init> ()V
+	protected final fun appBuildGradleKts (Lblueprint/test/FileTree$Builder;Ljava/lang/String;)V
+	protected fun getGradleVersion ()Ljava/lang/String;
+	public abstract fun getPluginId ()Ljava/lang/String;
+	protected final fun libsVersionsToml (Lblueprint/test/FileTree$Builder;Ljava/lang/String;)V
+	protected final fun rootBuildGradleKts (Lblueprint/test/FileTree$Builder;)V
+	protected final fun settingsGradleKts (Lblueprint/test/FileTree$Builder;)V
+}
+

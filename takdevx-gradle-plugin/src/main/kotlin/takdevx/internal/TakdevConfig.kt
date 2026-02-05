@@ -9,8 +9,11 @@ internal class TakdevConfig(
   private val localProperties: Provider<Map<String, String>>,
   private val rootDir: File,
 ) {
+  val atakVersion: Provider<String> = providers.gradleProperty("ATAK_VERSION")
+
   val mavenOnly: Provider<Boolean> =
     bool(localKey = "takrepo.force", projectKey = "mavenOnly")
+      .orElse(false)
 
   val repoUrl: Provider<String> =
     string(localKey = "takrepo.url")
@@ -23,7 +26,7 @@ internal class TakdevConfig(
 
   val devkitVersion: Provider<String> =
     string(localKey = "takrepo.devkit.version", projectKey = "devkitVersion")
-      .orElse(providers.gradleProperty("ATAK_VERSION"))
+      .orElse(atakVersion)
 
   val verbose: Provider<Boolean> =
     bool(localKey = "takdev.verbose", projectKey = "takdev.verbose")
@@ -66,9 +69,13 @@ internal class TakdevConfig(
     dir(localKey = "sdk.path", projectKey = "sdkPath")
       .orElse(rootDir.resolve("sdk"))
 
+  val extraFlavors: Provider<Set<String>> = string("takdev.extraFlavors")
+    .map { string -> string.split(",").toSet() }
+    .orElse(emptySet())
+
   private fun string(localKey: String, projectKey: String = localKey) = localProperties
-    .map<String> { map -> map.get(projectKey) }
-    .orElse(providers.gradleProperty(localKey))
+    .map<String> { map -> map.get(localKey) }
+    .orElse(providers.gradleProperty(projectKey))
 
   private fun bool(localKey: String, projectKey: String) = string(localKey, projectKey).map(String::toBoolean)
   private fun int(localKey: String, projectKey: String) = string(localKey, projectKey).map(String::toInt)

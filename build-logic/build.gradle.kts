@@ -36,5 +36,6 @@ gradlePlugin {
     "takdevx.base"(impl = "takdevx.gradle.TakdevxBasePlugin")
     "takdevx.plugin"(impl = "takdevx.gradle.TakdevxPlugin")
     "takdevx.convention.gradle"(impl = "takdevx.gradle.ConventionGradle")
+    "takdevx.convention.publish"(impl = "takdevx.gradle.ConventionPublish")
   }
 }

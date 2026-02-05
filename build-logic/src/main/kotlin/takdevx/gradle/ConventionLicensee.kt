@@ -16,6 +16,7 @@ class ConventionLicensee : Plugin<Project> {
 
     extensions.configure(LicenseeExtension::class) {
       allow("Apache-2.0")
+      allow("EPL-2.0")
       unusedAction(IGNORE)
     }
   }

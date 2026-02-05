@@ -19,6 +19,7 @@ include(
   ":takdevx-dependency-guard",
   ":takdevx-detekt",
   ":takdevx-gradle-plugin",
+  ":takdevx-test",
 )
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")

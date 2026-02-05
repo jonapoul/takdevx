@@ -8,6 +8,7 @@ import blueprint.test.outputDoesNotContain
 import blueprint.test.taskFailed
 import blueprint.test.taskSucceeded
 import takdevx.test.PLUGIN_ID
+import takdevx.test.withAndroidSdk
 import kotlin.test.Test
 
 class AllowedDependenciesBasic : DependencyGuardScenarioTest() {

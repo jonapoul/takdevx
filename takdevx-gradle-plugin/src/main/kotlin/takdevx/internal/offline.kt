@@ -16,7 +16,7 @@ internal fun Project.configureOffline(devKit: DevKit, config: TakdevConfig) {
   log(config, "Configuring Offline TakDev plugin build with $devKit")
 
   // Apply connected test file if exists
-  if (config.conTestEnable.get()) {
+  if (config.conTestEnable.getOrElse(false)) {
     val testSetupFile = config.conTestPath.get().resolve("testSetup.gradle")
     if (testSetupFile.exists()) {
       apply(mapOf("from" to testSetupFile))

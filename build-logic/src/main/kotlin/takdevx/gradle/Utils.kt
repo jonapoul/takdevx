@@ -9,7 +9,7 @@ import java.util.Properties
 fun pluginDependency(plugin: Provider<PluginDependency>): Provider<String> =
   plugin.map { "${it.pluginId}:${it.pluginId}.gradle.plugin:${it.version}" }
 
-internal fun Project.androidHome(): File? {
+fun Project.androidHome(): File? {
   val androidHome = System.getenv("ANDROID_HOME")?.let(::File)
   if (androidHome?.exists() == true) {
     logger.info("Using system environment variable $androidHome as ANDROID_HOME")
@@ -31,5 +31,5 @@ internal fun Project.androidHome(): File? {
   return null
 }
 
-internal val Project.pluginId: String
+val Project.pluginId: String
   get() = properties["takdevx.pluginId"]?.toString() ?: error("Missing pluginId")

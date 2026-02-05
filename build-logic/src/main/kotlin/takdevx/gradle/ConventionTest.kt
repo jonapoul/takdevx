@@ -18,8 +18,6 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import org.gradle.kotlin.dsl.withType
-import org.gradle.util.GradleVersion
-import java.io.File
 
 class ConventionTest : Plugin<Project> {
   override fun apply(target: Project) = with(target) {
@@ -47,9 +45,7 @@ class ConventionTest : Plugin<Project> {
         sourceSets.getByName("test") {
           packageName.set("takdevx.test")
           useKotlinOutput { topLevelConstants = true }
-          buildConfigField("GRADLE_VERSION", GradleVersion.current().version)
           buildConfigField("PLUGIN_ID", target.pluginId)
-          buildConfigField<File?>("ANDROID_HOME", androidHome())
         }
       }
     }

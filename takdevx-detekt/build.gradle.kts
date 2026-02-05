@@ -1,5 +1,6 @@
 plugins {
   id("takdevx.base")
+  id("takdevx.convention.publish")
 }
 
 dependencies {
